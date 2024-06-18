@@ -2,9 +2,14 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    status: {
+      type: String,
+      default: "inactive",
+    },
     fName: {
       type: String,
       required: true,
+      // maxLength: [100, "stop spamming me"],
     },
     lName: {
       type: String,
@@ -12,7 +17,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      default: "admin",
+      default: "user",
     },
     phone: {
       type: String,

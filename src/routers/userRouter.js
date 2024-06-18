@@ -1,9 +1,8 @@
 import express from "express";
 import { newUserValidation } from "../middlewares/joiValidation.js";
 import { comparePassword, hashPassword } from "../utils/bcrypt.js";
-
 import { signAccessJWT, signRefreshJWT } from "../utils/jwt.js";
-import { createNewUser, getUserByEmail } from "../models/user/userModel.js";
+import { createNewUser, getAUser } from "../models/user/userModel.js";
 const router = express.Router();
 
 router.all("/", (req, res, next) => {
@@ -54,7 +53,7 @@ router.post("/login", async (req, res, next) => {
       throw new Error("Invalid login details");
     }
     // find user by email
-    const user = await getUserByEmail(email);
+    const user = await getAUser(email);
     if (user?._id) {
       // verify the password
       const isPasswordMatched = comparePassword(password, user.password);
