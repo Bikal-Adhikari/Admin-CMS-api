@@ -2,8 +2,12 @@ import express from "express";
 import { newUserValidation } from "../middlewares/joiValidation.js";
 import { comparePassword, hashPassword } from "../utils/bcrypt.js";
 import { signAccessJWT, signRefreshJWT } from "../utils/jwt.js";
-import { createNewUser, getAUser } from "../models/user/userModel.js";
-import { insertToken } from "../models/session/SessionModel.js";
+import {
+  createNewUser,
+  getAUser,
+  updateUser,
+} from "../models/user/userModel.js";
+import { deleteSession, insertToken } from "../models/session/SessionModel.js";
 import { v4 as uuidv4 } from "uuid";
 import { emailVerificationMail } from "../services/email/nodemailer.js";
 const router = express.Router();
@@ -49,6 +53,45 @@ router.post("/", newUserValidation, async (req, res, next) => {
           status: "success",
           message:
             "We have sent you an email with instructions to verify your account. Please check email/junk to verify your account",
+        });
+      }
+    }
+
+    res.json({
+      status: "failure",
+      message: "Unable to create an account, contact administration",
+    });
+  } catch (error) {
+    if (error.message.includes("E11000 duplicate key")) {
+      error.message =
+        "Another user already have this email, change your email and try again";
+      error.status = 200;
+    }
+    next(error);
+  }
+});
+
+// user Verification
+router.post("/user-verification", async (req, res, next) => {
+  try {
+    const { c, e } = req.body;
+
+    // delete session data
+    const session = await deleteSession({
+      token: c,
+      associate: e,
+    });
+
+    if (session?._id) {
+      // update user table
+      const result = await updateUser(
+        { email: e },
+        { status: "active", isEmailVerified: true }
+      );
+      if (result?._id) {
+        res.json({
+          status: "success",
+          message: "Your account has been verified. You may sign in now ",
         });
       }
     }

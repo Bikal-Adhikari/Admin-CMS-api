@@ -6,6 +6,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "inactive",
     },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
     fName: {
       type: String,
       required: true,
