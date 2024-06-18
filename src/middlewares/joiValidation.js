@@ -1,15 +1,22 @@
 import Joi from "joi";
 
-const STR_REQUIRED = Joi.string().required();
-// const STR = Joi.string()
-const PHONE = Joi.string().allow("", null);
-const EMAIL = Joi.string().email({
-  minDomainSegments: 2,
-  tlds: { allow: ["com", "net"] },
-});
+const STR_REQUIRED = Joi.string().max(100).required();
+const STR = Joi.string().max(100).allow("", null);
+const LONG_STR = Joi.string().max(5000).allow("", null);
+const LONG_STR_REQUIRED = Joi.string().max(5000).required();
+const PHONE = Joi.number().allow("", null);
+const PHONE_REQ = Joi.number().required();
+const EMAIL = Joi.string()
+  .email({
+    minDomainSegments: 2,
+  })
+  .allow("", null);
+const EMAIL_REQ = Joi.string()
+  .email({
+    minDomainSegments: 2,
+  })
+  .required();
 // const ISTRUE = Joi.boolean().allow(null, "");
-
-// const NUM_REQ = Joi.number().required();
 
 const joiValidator = ({ req, res, next, schema }) => {
   try {
@@ -29,7 +36,7 @@ export const newUserValidation = (req, res, next) => {
     fName: STR_REQUIRED,
     lName: STR_REQUIRED,
     phone: PHONE,
-    email: EMAIL,
+    email: EMAIL_REQ,
     password: STR_REQUIRED,
   });
   return joiValidator({ req, res, next, schema });

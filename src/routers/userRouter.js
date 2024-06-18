@@ -3,6 +3,8 @@ import { newUserValidation } from "../middlewares/joiValidation.js";
 import { comparePassword, hashPassword } from "../utils/bcrypt.js";
 import { signAccessJWT, signRefreshJWT } from "../utils/jwt.js";
 import { createNewUser, getAUser } from "../models/user/userModel.js";
+import { insertToken } from "../models/session/SessionModel.js";
+import { v4 as uuidv4 } from "uuid";
 const router = express.Router();
 
 router.all("/", (req, res, next) => {
@@ -25,15 +27,28 @@ router.post("/", newUserValidation, async (req, res, next) => {
     req.body.password = hashPassword(req.body.password);
     const user = await createNewUser(req.body);
 
-    user?._id
-      ? res.json({
+    // create unique url
+    if (user?._id) {
+      const obj = {
+        token: uuidv4(),
+        associate: user.email,
+      };
+
+      const result = await insertToken(obj);
+      //process for sending email
+      if (result?._id) {
+        return res.json({
           status: "success",
-          message: "Your Account has been created successfully",
-        })
-      : res.json({
-          status: "failure",
-          message: "Unable to create an account, try again later",
+          message:
+            "We have sen you an email with instructions to verify your account. Please check email/junk to verify your account",
         });
+      }
+    }
+
+    res.json({
+      status: "failure",
+      message: "Unable to create an account, contact administration",
+    });
   } catch (error) {
     if (error.message.includes("E11000 duplicate key")) {
       error.message =
