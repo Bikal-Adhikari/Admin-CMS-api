@@ -5,6 +5,7 @@ import { signAccessJWT, signRefreshJWT } from "../utils/jwt.js";
 import { createNewUser, getAUser } from "../models/user/userModel.js";
 import { insertToken } from "../models/session/SessionModel.js";
 import { v4 as uuidv4 } from "uuid";
+import { emailVerificationMail } from "../services/email/nodemailer.js";
 const router = express.Router();
 
 router.all("/", (req, res, next) => {
@@ -29,18 +30,25 @@ router.post("/", newUserValidation, async (req, res, next) => {
 
     // create unique url
     if (user?._id) {
+      const token = uuidv4();
       const obj = {
-        token: uuidv4(),
+        token,
         associate: user.email,
       };
 
       const result = await insertToken(obj);
       //process for sending email
       if (result?._id) {
+        emailVerificationMail({
+          email: user.email,
+          fName: user.fName,
+          url:
+            process.env.FE_ROOT_URL + `/verify-user?c=${token}&e=${user.email}`,
+        });
         return res.json({
           status: "success",
           message:
-            "We have sen you an email with instructions to verify your account. Please check email/junk to verify your account",
+            "We have sent you an email with instructions to verify your account. Please check email/junk to verify your account",
         });
       }
     }
