@@ -21,6 +21,7 @@ router.all("/", (req, res, next) => {
 router.get("/", auth, (req, res, next) => {
   try {
     const { userInfo } = req;
+    userInfo.refreshJWT = undefined;
     userInfo?.status === "active"
       ? res.json({ status: "success", message: "", userInfo })
       : res.json({
@@ -122,13 +123,15 @@ router.post("/user-verification", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
   try {
+    let message = "";
     const { email, password } = req.body;
     if (!email.includes("@") && !password) {
       throw new Error("Invalid login details");
     }
     // find user by email
     const user = await getAUser({ email });
-    if (user?._id) {
+
+    if (user?._id && user?.status === "active" && user?.isEmailVerified) {
       // verify the password
       const isPasswordMatched = comparePassword(password, user.password);
 
@@ -143,9 +146,15 @@ router.post("/login", async (req, res, next) => {
         });
       }
     }
+    if (user?.status === "inactive") {
+      message = "Your account is not active, contact admin";
+    }
+    if (!user?.isEmailVerified) {
+      message = "User not Verified, please check your email and verify";
+    }
     res.json({
       status: "error",
-      message: "Invalid login details",
+      message: message || "Invalid login details",
     });
   } catch (error) {
     next(error);

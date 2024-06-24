@@ -6,7 +6,7 @@ export const auth = async (req, res, next) => {
   try {
     const { authorization } = req.headers;
     const decoded = verifyAccessJWT(authorization);
-
+    let message = "";
     if (decoded?.email) {
       const tokenObj = await findToken({
         token: authorization,
@@ -15,30 +15,24 @@ export const auth = async (req, res, next) => {
 
       if (tokenObj?._id) {
         const user = await getUserByEmail(decoded.email);
-        if (!user?.isEmailVerified) {
-          throw new Error({
-            message: "User not Verified, please check your email and verify",
-            statusCode: 401,
-          });
-        }
-        if (user?.status === "inactive") {
-          throw new Error({
-            message: "Your account is not active, contact admin",
-            statusCode: 401,
-          });
-        }
-
-        if (user?._id) {
+        if (user?._id && user?.isEmailVerified && user?.status === "active") {
           user.password = undefined;
+          user.__v = undefined;
           req.userInfo = user;
           return next();
+        }
+        if (user?.status === "inactive") {
+          message = "Your account is not active, contact admin";
+        }
+        if (!user?.isEmailVerified) {
+          message = "User not Verified, please check your email and verify";
         }
       }
     }
 
     const error = {
       status: 403,
-      message: decoded,
+      message: message || decoded,
     };
     next(error);
   } catch (error) {
