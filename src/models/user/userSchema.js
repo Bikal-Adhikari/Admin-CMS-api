@@ -1,31 +1,28 @@
 import mongoose from "mongoose";
-
 const userSchema = new mongoose.Schema(
   {
     status: {
       type: String,
       default: "inactive",
     },
-    isEmailVerified: {
-      type: Boolean,
-      default: false,
+
+    role: {
+      type: String,
+      default: "user",
     },
+
     fName: {
       type: String,
       required: true,
-      // maxLength: [100, "stop spamming me"],
+      //    maxLength: [100, "stop spamming me"]
     },
     lName: {
       type: String,
       required: true,
     },
-    role: {
-      type: String,
-      default: "user",
-    },
     phone: {
       type: String,
-      default: "",
+      default: null,
     },
     email: {
       type: String,
@@ -41,10 +38,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-export default mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema); //users

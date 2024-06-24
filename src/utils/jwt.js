@@ -1,53 +1,39 @@
-import JWT from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import { insertSession } from "../models/session/SessionModel.js";
+import { updateUser } from "../models/user/UserModel.js";
 
-import { updateUser } from "../models/user/userModel.js";
-import { insertToken } from "../models/session/SessionModel.js";
-
-// create access jwt
-
-export const signAccessJWT = (email) => {
-  const token = JWT.sign({ email }, process.env.ACCESS_JWT_SECRET, {
+export const signAccessJWT = async (email) => {
+  const token = jwt.sign({ email }, process.env.ACCESS_JWT_SECRET, {
     expiresIn: "15m",
   });
-  insertToken({ token, associate: { email } });
-  return token;
+
+  const session = await insertSession({ token, associate: email });
+  return session._id ? token : null;
 };
 
-// verify access jwt
-
-export const verifyAccessJWT = (token) => {
+export const verifyAccessJWT = async (token) => {
   try {
-    return JWT.verify(token, process.env.ACCESS_JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.ACCESS_JWT_SECRET);
+    return decoded;
   } catch (error) {
-    console.log(error.message);
-    return error.message === "jwt expired" ? "jwt expired" : "invalid token";
+    return error.message;
   }
-  // return JWT.verify(token, );
 };
 
-// create refresh jwt
-
-export const signRefreshJWT = (email) => {
-  const refreshJWT = JWT.sign({ email }, process.env.REFRESH_JWT_SECRET, {
+// =====
+export const signRefreshJWT = async (email) => {
+  const refreshJWT = jwt.sign({ email }, process.env.REFRESH_JWT_SECRET, {
     expiresIn: "30d",
   });
-  updateUser({ email }, { refreshJWT });
-  return refreshJWT;
+
+  const user = await updateUser({ email }, { refreshJWT });
+
+  return user._id ? refreshJWT : null;
 };
 
-// verify refresh jwt
-export const verifyRefreshJWT = (token) => {
-  try {
-    return JWT.verify(token, process.env.ACCESS_JWT_SECRET);
-  } catch (error) {
-    console.log(error.message);
-    return "invalid token";
-  }
-};
-
-export const getTokens = (email) => {
+export const getTokens = async (email) => {
   return {
-    accessJWT: signAccessJWT(email),
-    refreshJWT: signRefreshJWT(email),
+    accessJWT: await signAccessJWT(email),
+    refreshJWT: await signRefreshJWT(email),
   };
 };

@@ -1,10 +1,11 @@
 import SessionSchema from "./SessionSchema.js";
 
-export const insertToken = (obj) => {
-  return SessionSchema(obj).save();
+export const insertSession = (sessionObj) => {
+  return SessionSchema(sessionObj).save();
 };
-export const findToken = (token) => {
-  return SessionSchema.findOne(token);
+
+export const getSession = (filter) => {
+  return SessionSchema.findOne(filter);
 };
 
 export const deleteSession = (filter) => {

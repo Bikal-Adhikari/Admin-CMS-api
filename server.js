@@ -1,44 +1,43 @@
 import express from "express";
+
 const app = express();
+const PORT = process.env.PORT || 8001;
 
-const PORT = process.env.PORT || 8000;
-
-//connect MongoDB
-import { connectMongoDB } from "./src/config/mongoConfig.js";
-connectMongoDB();
+// db connect
+import { connectDb } from "./src/config/dbConfig.js";
+connectDb();
 
 //middlewares
 import cors from "cors";
 import morgan from "morgan";
+
 app.use(cors());
 app.use(express.json());
+app.use(morgan("tiny"));
 
-if (process.env.NODE_ENV !== "production") {
-  //you can leave this for the prod as well to track the user req
-  app.use(morgan("dev"));
-}
-
-//routers
+// apis
 import routers from "./src/routers/routers.js";
+routers.forEach(({ path, middlewawers }) => app.use(path, ...middlewawers));
 
-routers.forEach(({ path, middlewares }) => app.use(path, ...middlewares));
+// ErrorHandler
 
-// server status
-app.get("/", (req, res) => {
+app.get("/", (req, res, next) => {
   res.json({
-    message: "Server running healthy",
+    status: "success",
+    message: "server is live",
   });
 });
 
 app.use("*", (req, res, next) => {
-  const err = new Error("404 page not found");
-  err.status = 404;
+  const err = new Error("404 Page nto found");
+  err.statusCode = 404;
   next(err);
 });
-//global error handler
 
 app.use((error, req, res, next) => {
-  res.status(error.status || 500);
+  console.log(error, "--------");
+
+  res.status(error.statusCode || 500);
   res.json({
     status: "error",
     message: error.message,
@@ -48,5 +47,5 @@ app.use((error, req, res, next) => {
 app.listen(PORT, (error) => {
   error
     ? console.log(error)
-    : console.log(`Server is running at http://localhost:${PORT}`);
+    : console.log(`Server running at http://localhost:${PORT}`);
 });

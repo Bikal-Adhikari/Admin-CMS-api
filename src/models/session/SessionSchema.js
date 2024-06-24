@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
-
 const sessionSchema = new mongoose.Schema(
   {
     token: {
       type: String,
       required: true,
     },
+
     associate: {
       type: String,
       default: "",
@@ -16,4 +16,4 @@ const sessionSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Session", sessionSchema);
+export default mongoose.model("Session", sessionSchema); //sessions

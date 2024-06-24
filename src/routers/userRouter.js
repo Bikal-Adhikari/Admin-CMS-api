@@ -1,57 +1,58 @@
 import express from "express";
-import { newUserValidation } from "../middlewares/joiValidation.js";
 import { comparePassword, hashPassword } from "../utils/bcrypt.js";
-import { getTokens } from "../utils/jwt.js";
+import { getAUser, insertUser, updateUser } from "../models/user/UserModel.js";
+import { newUserValidation } from "../middlewares/validation.js";
 import {
-  createNewUser,
-  getAUser,
-  updateUser,
-} from "../models/user/userModel.js";
-import { deleteSession, insertToken } from "../models/session/SessionModel.js";
+  deleteSession,
+  insertSession,
+} from "../models/session/SessionModel.js";
+const router = express.Router();
 import { v4 as uuidv4 } from "uuid";
 import { emailVerificationMail } from "../services/email/nodemailer.js";
+import { getTokens, signAccessJWT, signRefreshJWT } from "../utils/jwt.js";
 import { auth } from "../middlewares/auth.js";
-const router = express.Router();
-
-router.all("/", (req, res, next) => {
-  console.log("all router");
-  next();
-});
 
 router.get("/", auth, (req, res, next) => {
   try {
     const { userInfo } = req;
+
     userInfo.refreshJWT = undefined;
+
     userInfo?.status === "active"
-      ? res.json({ status: "success", message: "", userInfo })
+      ? res.json({
+          status: "success",
+          message: "",
+          userInfo,
+        })
       : res.json({
           status: "error",
           message:
-            "Your account has not been activated. Check your email to verify your account",
+            "your account has not been activated. Check your email to verify your account",
         });
   } catch (error) {
     next(error);
   }
 });
 
-// create new admin
-
 router.post("/", newUserValidation, async (req, res, next) => {
   try {
+    // encrypt password
     req.body.password = hashPassword(req.body.password);
-    const user = await createNewUser(req.body);
 
-    // create unique url
+    const user = await insertUser(req.body);
+
     if (user?._id) {
+      // create unique url and add in the database
       const token = uuidv4();
       const obj = {
         token,
         associate: user.email,
       };
 
-      const result = await insertToken(obj);
-      //process for sending email
+      const result = await insertSession(obj);
       if (result?._id) {
+        //process for sending email
+
         emailVerificationMail({
           email: user.email,
           fName: user.fName,
@@ -61,97 +62,92 @@ router.post("/", newUserValidation, async (req, res, next) => {
         return res.json({
           status: "success",
           message:
-            "We have sent you an email with instructions to verify your account. Please check email/junk to verify your account",
+            "We have send you an email with insturction to verify your  account. Pelase chekc email/junk to verify your account",
         });
       }
     }
 
     res.json({
-      status: "failure",
-      message: "Unable to create an account, contact administration",
+      status: "error",
+      message: "Error Unable to create an account, Contact administration",
     });
   } catch (error) {
-    if (error.message.includes("E11000 duplicate key")) {
-      error.message =
-        "Another user already have this email, change your email and try again";
-      error.status = 200;
-    }
     next(error);
   }
 });
 
-// user Verification
+//user verification
 router.post("/user-verification", async (req, res, next) => {
   try {
     const { c, e } = req.body;
+    //delete session data
 
-    // delete session data
     const session = await deleteSession({
       token: c,
       associate: e,
     });
-
     if (session?._id) {
-      // update user table
+      //update user table
       const result = await updateUser(
         { email: e },
-        { status: "active", isEmailVerified: true }
+        {
+          staus: "active",
+          isEmailVerified: true,
+        }
       );
       if (result?._id) {
-        res.json({
+        // send user an email
+        return res.json({
           status: "success",
-          message: "Your account has been verified. You may sign in now ",
+          message: "Your account has been verified. You may sign in now",
         });
       }
     }
 
     res.json({
-      status: "failure",
-      message: "Unable to create an account, contact administration",
+      status: "error",
+      message: "Invalid link, contact admin",
     });
   } catch (error) {
-    if (error.message.includes("E11000 duplicate key")) {
-      error.message =
-        "Another user already have this email, change your email and try again";
-      error.status = 200;
-    }
     next(error);
   }
 });
 
-//login
+// Admin authentication
 
 router.post("/login", async (req, res, next) => {
   try {
     let message = "";
     const { email, password } = req.body;
-    if (!email.includes("@") && !password) {
-      throw new Error("Invalid login details");
-    }
-    // find user by email
+    // 1. cheich if user exist with email
     const user = await getAUser({ email });
 
     if (user?._id && user?.status === "active" && user?.isEmailVerified) {
-      // verify the password
-      const isPasswordMatched = comparePassword(password, user.password);
+      //verify passwords
 
-      if (isPasswordMatched) {
-        //user authentication
-        //create token, and return
+      const confirmPass = comparePassword(password, user.password);
+
+      if (confirmPass) {
+        //useris now authenticated
+
+        // create jwts then return
 
         return res.json({
           status: "success",
-          message: "user authenticated",
-          tokens: getTokens(email),
+          message: "Login Successfull",
+          jwts: await getTokens(email),
         });
       }
     }
+
     if (user?.status === "inactive") {
       message = "Your account is not active, contact admin";
     }
+
     if (!user?.isEmailVerified) {
-      message = "User not Verified, please check your email and verify";
+      message = "User not verified, please check your email and verify";
     }
+
     res.json({
       status: "error",
       message: message || "Invalid login details",
@@ -160,5 +156,4 @@ router.post("/login", async (req, res, next) => {
     next(error);
   }
 });
-
 export default router;

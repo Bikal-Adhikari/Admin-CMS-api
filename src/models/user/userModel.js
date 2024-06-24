@@ -1,22 +1,21 @@
-import UserSchema from "./userSchema.js";
+import UserSchema from "./UserSchema.js";
 
-export const createNewUser = (userObj) => {
+export const insertUser = (userObj) => {
   return UserSchema(userObj).save();
 };
 
-// export const getUserByEmail = (email) => {
-//   return UserSchema.findOne({ email });
-// };
 export const getAUser = (filter) => {
   return UserSchema.findOne(filter);
 };
-export const getAllUser = () => {
+
+export const getAllUsers = () => {
   return UserSchema.find();
 };
 
-export const updateUser = async (filter, obj) => {
-  return await UserSchema.findOneAndUpdate(filter, obj);
+export const updateUserById = ({ _id, obj }) => {
+  return UserSchema.findByIdAndUpdate(_id, obj);
 };
-export const updateUserById = async ({ _id, obj }) => {
-  return await UserSchema.findByIdAndUpdate(_id, obj);
+
+export const updateUser = (filter, obj) => {
+  return UserSchema.findOneAndUpdate(filter, obj);
 };
