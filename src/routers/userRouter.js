@@ -1,7 +1,7 @@
 import express from "express";
 import { newUserValidation } from "../middlewares/joiValidation.js";
 import { comparePassword, hashPassword } from "../utils/bcrypt.js";
-import { signAccessJWT, signRefreshJWT } from "../utils/jwt.js";
+import { getTokens } from "../utils/jwt.js";
 import {
   createNewUser,
   getAUser,
@@ -10,6 +10,7 @@ import {
 import { deleteSession, insertToken } from "../models/session/SessionModel.js";
 import { v4 as uuidv4 } from "uuid";
 import { emailVerificationMail } from "../services/email/nodemailer.js";
+import { auth } from "../middlewares/auth.js";
 const router = express.Router();
 
 router.all("/", (req, res, next) => {
@@ -17,9 +18,16 @@ router.all("/", (req, res, next) => {
   next();
 });
 
-router.get("/", (req, res, next) => {
+router.get("/", auth, (req, res, next) => {
   try {
-    res.json({ status: "success", message: "Todo...." });
+    const { userInfo } = req;
+    userInfo?.status === "active"
+      ? res.json({ status: "success", message: "", userInfo })
+      : res.json({
+          status: "error",
+          message:
+            "Your account has not been activated. Check your email to verify your account",
+        });
   } catch (error) {
     next(error);
   }
@@ -119,7 +127,7 @@ router.post("/login", async (req, res, next) => {
       throw new Error("Invalid login details");
     }
     // find user by email
-    const user = await getAUser(email);
+    const user = await getAUser({ email });
     if (user?._id) {
       // verify the password
       const isPasswordMatched = comparePassword(password, user.password);
@@ -131,10 +139,7 @@ router.post("/login", async (req, res, next) => {
         return res.json({
           status: "success",
           message: "user authenticated",
-          tokens: {
-            accessJWT: signAccessJWT({ email }),
-            refreshJWT: signRefreshJWT(email),
-          },
+          tokens: getTokens(email),
         });
       }
     }

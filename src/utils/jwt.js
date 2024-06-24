@@ -5,11 +5,11 @@ import { insertToken } from "../models/session/SessionModel.js";
 
 // create access jwt
 
-export const signAccessJWT = (payload) => {
-  const token = JWT.sign(payload, process.env.ACCESS_JWT_SECRET, {
+export const signAccessJWT = (email) => {
+  const token = JWT.sign({ email }, process.env.ACCESS_JWT_SECRET, {
     expiresIn: "15m",
   });
-  insertToken({ token });
+  insertToken({ token, associate: { email } });
   return token;
 };
 
@@ -43,4 +43,11 @@ export const verifyRefreshJWT = (token) => {
     console.log(error.message);
     return "invalid token";
   }
+};
+
+export const getTokens = (email) => {
+  return {
+    accessJWT: signAccessJWT(email),
+    refreshJWT: signRefreshJWT(email),
+  };
 };
