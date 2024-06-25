@@ -2,3 +2,11 @@
 # ===== get new accessjwt
 GET {{api}}/users/new-accessjwt
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJpa2FsYWRoaWthcmk1QGdtYWlsLmNvbSIsImlhdCI6MTcxOTI3MTQwMSwiZXhwIjoxNzIxODYzNDAxfQ.wN04YrcyNzFekpfNuNSMwSVcqhblA7yc-a_3cBnmfd4
+
+### ===== Forget Password
+POST {{api}}/users/otp
+Content-Type: application/json
+
+{
+    "email": "biklaladhikari1@gmail.com"
+}

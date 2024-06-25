@@ -64,3 +64,70 @@ Tech Store
 
   emailProcessor(obj);
 };
+
+// send OTP for password
+export const sendOtpMail = ({ email, fName, token }) => {
+  const obj = {
+    from: `"Tech Store 👻" <${process.env.SMTP_EMAIL}>`, // sender
+    to: email, // list of receivers
+    subject: "OTP for Password Reset", // Subject line
+    text: `hellow there, please find the OTP to reset your password ${token}`, // plain text body
+    html: `
+    Hello ${fName},
+<br />
+<br />
+
+<p>
+    Click the button bellow to verify your email
+   </p> 
+
+   <br />
+   <div  style="font-size: 2rem; font-weight:bolder; background: green"> ${token}
+   </div>
+
+
+<p>
+If you didn't request your otp to reset your password, please don't share it
+</p>
+<br />
+<br />
+<p>
+Regards, <br />
+Tech Store
+</p>
+
+
+    `,
+  };
+  emailProcessor(obj);
+};
+// send account update change
+export const accountUpdatedNotification = ({ email, fName }) => {
+  const obj = {
+    from: `"Tech Store 👻" <${process.env.SMTP_EMAIL}>`, // sender
+    to: email, // list of receivers
+    subject: "Your account has been updated", // Subject line
+    text: `hellow there, somebody just updated your account, if that's not you, change your password and contact admin`, // plain text body
+    html: `
+    Hello ${fName},
+<br />
+<br />
+
+
+
+   <br />
+   <div  style="font-size: 2rem; font-weight:bolder; background: green"> somebody just updated your account, if that's not you, change your password and contact admin
+   </div>
+
+<br />
+<br />
+<p>
+Regards, <br />
+Tech Store
+</p>
+
+
+    `,
+  };
+  emailProcessor(obj);
+};

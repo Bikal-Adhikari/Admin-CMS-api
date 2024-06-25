@@ -5,11 +5,16 @@ import { newUserValidation } from "../middlewares/validation.js";
 import {
   deleteManySession,
   deleteSession,
+  getSession,
   insertSession,
 } from "../models/session/SessionModel.js";
 const router = express.Router();
 import { v4 as uuidv4 } from "uuid";
-import { emailVerificationMail } from "../services/email/nodemailer.js";
+import {
+  accountUpdatedNotification,
+  emailVerificationMail,
+  sendOtpMail,
+} from "../services/email/nodemailer.js";
 import {
   getTokens,
   signAccessJWT,
@@ -17,6 +22,7 @@ import {
   verifyRefreshJWT,
 } from "../utils/jwt.js";
 import { auth } from "../middlewares/auth.js";
+import { otpGenerator } from "../utils/random.js";
 
 router.get("/", auth, (req, res, next) => {
   try {
@@ -215,6 +221,64 @@ router.delete("/logout", auth, async (req, res, next) => {
     res.json({
       status: "success",
       message: "Logged out successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/otp", async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await getAUser({ email });
+    if (user?._id) {
+      const token = otpGenerator();
+
+      const session = await insertSession({
+        token,
+        associate: email,
+        type: "otp",
+      });
+      session?._id && sendOtpMail({ token, fName: user.fName, email });
+    }
+
+    res.json({
+      status: "success",
+      message:
+        "If your email exists in our system, please check your email for OTP",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+router.patch("/password/reset", async (req, res, next) => {
+  try {
+    const { email, otp, password } = req.body;
+    if ((email, otp, password)) {
+      const session = await deleteSession({
+        token: otp,
+        associate: email,
+        type: "otp",
+      });
+      if (session?._id) {
+        //update user table with new hashPass
+        const user = await updateUser(
+          { email },
+          { password: hashPassword(password) }
+        );
+        if (user?._id) {
+          accountUpdatedNotification({ email, fName: user.fName });
+          res.json({
+            status: "success",
+            message: "Your password has been reset sucessfully",
+          });
+        }
+      }
+    }
+
+    res.json({
+      status: "error",
+      message: "Invalid data, please try again later",
     });
   } catch (error) {
     next(error);
