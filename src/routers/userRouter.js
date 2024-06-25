@@ -9,7 +9,12 @@ import {
 const router = express.Router();
 import { v4 as uuidv4 } from "uuid";
 import { emailVerificationMail } from "../services/email/nodemailer.js";
-import { getTokens, signAccessJWT, signRefreshJWT } from "../utils/jwt.js";
+import {
+  getTokens,
+  signAccessJWT,
+  signRefreshJWT,
+  verifyRefreshJWT,
+} from "../utils/jwt.js";
 import { auth } from "../middlewares/auth.js";
 
 router.get("/", auth, (req, res, next) => {
@@ -156,4 +161,41 @@ router.post("/login", async (req, res, next) => {
     next(error);
   }
 });
+
+// return access jwt
+router.get("/new-accessjwt", async (req, res, next) => {
+  try {
+    const { authorization } = req.headers;
+    // verify jwt
+    const decoded = await verifyRefreshJWT(authorization);
+    console.log(decoded);
+    if (decoded?.email) {
+      //check if exist in the user table
+      const user = await getAUser({
+        email: decoded.email,
+        refreshJWT: authorization,
+      });
+      //create new accessJWT and return
+      if (user?._id) {
+        const accessJWT = await signAccessJWT(decoded.email);
+        if (accessJWT) {
+          return res.json({
+            status: "success",
+            message: "",
+            accessJWT,
+          });
+        }
+      }
+    }
+
+    //else return 401
+    res.status(401).json({
+      status: "error",
+      message: "Unauthorized",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

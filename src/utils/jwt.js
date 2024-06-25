@@ -13,8 +13,7 @@ export const signAccessJWT = async (email) => {
 
 export const verifyAccessJWT = async (token) => {
   try {
-    const decoded = jwt.verify(token, process.env.ACCESS_JWT_SECRET);
-    return decoded;
+    return jwt.verify(token, process.env.ACCESS_JWT_SECRET);
   } catch (error) {
     return error.message;
   }
@@ -29,6 +28,15 @@ export const signRefreshJWT = async (email) => {
   const user = await updateUser({ email }, { refreshJWT });
 
   return user._id ? refreshJWT : null;
+};
+
+export const verifyRefreshJWT = (token) => {
+  try {
+    const decoded = jwt.verify(token, process.env.REFRESH_JWT_SECRET);
+    return decoded;
+  } catch (error) {
+    return error.message;
+  }
 };
 
 export const getTokens = async (email) => {
