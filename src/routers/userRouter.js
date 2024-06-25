@@ -3,6 +3,7 @@ import { comparePassword, hashPassword } from "../utils/bcrypt.js";
 import { getAUser, insertUser, updateUser } from "../models/user/UserModel.js";
 import { newUserValidation } from "../middlewares/validation.js";
 import {
+  deleteManySession,
   deleteSession,
   insertSession,
 } from "../models/session/SessionModel.js";
@@ -167,7 +168,7 @@ router.get("/new-accessjwt", async (req, res, next) => {
   try {
     const { authorization } = req.headers;
     // verify jwt
-    const decoded = await verifyRefreshJWT(authorization);
+    const decoded = verifyRefreshJWT(authorization);
     console.log(decoded);
     if (decoded?.email) {
       //check if exist in the user table
@@ -192,6 +193,28 @@ router.get("/new-accessjwt", async (req, res, next) => {
     res.status(401).json({
       status: "error",
       message: "Unauthorized",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+// logout user
+router.delete("/logout", auth, async (req, res, next) => {
+  try {
+    const { email } = req.userInfo;
+
+    await updateUser(
+      {
+        email,
+      },
+      { refreshJWT: "" }
+    );
+
+    await deleteManySession({ associate: email });
+
+    res.json({
+      status: "success",
+      message: "Logged out successfully",
     });
   } catch (error) {
     next(error);
