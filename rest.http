@@ -10,3 +10,13 @@ Content-Type: application/json
 {
     "email": "biklaladhikari1@gmail.com"
 }
+
+
+### ======= categories
+### post new category
+POST {{api}}/categories
+Content-Type: application/json
+
+{
+    "title": "Iphones"
+}
