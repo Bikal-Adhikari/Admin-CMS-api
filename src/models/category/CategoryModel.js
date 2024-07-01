@@ -4,9 +4,9 @@ export const insertCategory = (categoryObj) => {
   return CategorySchema(categoryObj).save();
 };
 
-// export const getCategory = (filter) => {
-//   return CategorySchema.findOne(filter);
-// };
+export const getAllCategories = () => {
+  return CategorySchema.find();
+};
 
 // export const deleteCategory = (filter) => {
 //   return CategorySchema.findOneAndDelete(filter);

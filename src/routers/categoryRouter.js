@@ -1,6 +1,9 @@
 import express from "express";
 import slugify from "slugify";
-import { insertCategory } from "../models/category/CategoryModel.js";
+import {
+  getAllCategories,
+  insertCategory,
+} from "../models/category/CategoryModel.js";
 const router = express.Router();
 
 router.post("/", async (req, res, next) => {
@@ -30,6 +33,19 @@ router.post("/", async (req, res, next) => {
       error.message = "This category already exists, try another one";
       error.statusCode = 200;
     }
+    next(error);
+  }
+});
+
+router.get("/", async (req, res, next) => {
+  try {
+    const categories = await getAllCategories();
+    res.json({
+      status: "success",
+      message: "All categories are fetched from database",
+      categories,
+    });
+  } catch (error) {
     next(error);
   }
 });
