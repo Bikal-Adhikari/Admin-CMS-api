@@ -2,6 +2,7 @@ import express from "express";
 import slugify from "slugify";
 import {
   EditCategory,
+  deleteCategory,
   getAllCategories,
   insertCategory,
 } from "../models/category/CategoryModel.js";
@@ -58,7 +59,7 @@ router.put("/:_id", async (req, res, next) => {
     category?._id
       ? res.json({
           status: "success",
-          message: "Category is edited successfully",
+          message: "Category edited successfully",
         })
       : res.json({
           status: "error",
@@ -76,7 +77,7 @@ router.delete("/:_id", async (req, res, next) => {
     category?._id
       ? res.json({
           status: "success",
-          message: "Category is edited successfully",
+          message: "Category deleted successfully",
         })
       : res.json({
           status: "error",

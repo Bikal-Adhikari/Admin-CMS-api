@@ -9,7 +9,7 @@ export const getAllCategories = () => {
 };
 
 export const EditCategory = (_id, obj) => {
-  return CategorySchema.findByIdAndUpdate(_id, obj, { new: true });
+  return CategorySchema.findByIdAndUpdate(_id, obj);
 };
 export const deleteCategory = (_id) => {
   return CategorySchema.findByIdAndDelete(_id);
