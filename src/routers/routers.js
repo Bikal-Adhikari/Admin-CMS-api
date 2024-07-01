@@ -7,7 +7,7 @@ export default [
     middlewares: [userRouter],
   },
   {
-    path: "api/v1/categories",
+    path: "/api/v1/categories",
     middlewares: [categoryRouter],
   },
 ];

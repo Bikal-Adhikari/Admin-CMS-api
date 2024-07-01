@@ -3,7 +3,7 @@ const categorySchema = new mongoose.Schema(
   {
     status: {
       type: String,
-      required: "inactive",
+      default: "inactive",
     },
 
     title: {
