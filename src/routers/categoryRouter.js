@@ -1,6 +1,7 @@
 import express from "express";
 import slugify from "slugify";
 import {
+  EditCategory,
   getAllCategories,
   insertCategory,
 } from "../models/category/CategoryModel.js";
@@ -45,6 +46,42 @@ router.get("/", async (req, res, next) => {
       message: "All categories are fetched from database",
       categories,
     });
+  } catch (error) {
+    next(error);
+  }
+});
+router.put("/:_id", async (req, res, next) => {
+  try {
+    const { _id } = req.params;
+
+    const category = await EditCategory(_id, req.body);
+    category?._id
+      ? res.json({
+          status: "success",
+          message: "Category is edited successfully",
+        })
+      : res.json({
+          status: "error",
+          message: "Failed to edit category",
+        });
+  } catch (error) {
+    next(error);
+  }
+});
+router.delete("/:_id", async (req, res, next) => {
+  try {
+    const { _id } = req.params;
+
+    const category = await deleteCategory(_id);
+    category?._id
+      ? res.json({
+          status: "success",
+          message: "Category is edited successfully",
+        })
+      : res.json({
+          status: "error",
+          message: "Failed to edit category",
+        });
   } catch (error) {
     next(error);
   }

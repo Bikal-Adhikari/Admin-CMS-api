@@ -20,3 +20,12 @@ Content-Type: application/json
 {
     "title": "Iphones"
 }
+### put category
+PUT {{api}}/categories/edit
+Content-Type: application/json
+
+{
+    "_id":"6681fcba29b14d0b58dd2634",
+    "title": "Iphones",
+    "status":"active"
+}
