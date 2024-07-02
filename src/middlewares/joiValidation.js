@@ -16,6 +16,7 @@ const EMAIL_REQ = Joi.string()
     minDomainSegments: 2,
   })
   .required();
+const DATE_REQ = Joi.date().required();
 // const ISTRUE = Joi.boolean().allow(null, "");
 
 const joiValidator = ({ req, res, next, schema }) => {
@@ -39,5 +40,20 @@ export const newUserValidation = (req, res, next) => {
     email: EMAIL_REQ,
     password: STR_REQUIRED,
   });
+  return joiValidator({ req, res, next, schema });
+};
+export const newProductValidation = (req, res, next) => {
+  const schema = Joi.object({
+    name: STR_REQUIRED,
+    sku: STR_REQUIRED,
+    price: PHONE_REQ,
+    quantity: PHONE_REQ,
+    category: STR_REQUIRED,
+    salesPrice: PHONE_REQ,
+    salesStart: DATE_REQ,
+    salesEnd: DATE_REQ,
+    description: LONG_STR_REQUIRED,
+  });
+
   return joiValidator({ req, res, next, schema });
 };
