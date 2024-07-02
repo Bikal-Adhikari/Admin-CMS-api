@@ -3,6 +3,7 @@ const router = express.Router();
 import slugify from "slugify";
 
 import {
+  editProduct,
   getAllProducts,
   insertProduct,
 } from "../models/product/ProductModel.js";
@@ -50,6 +51,43 @@ router.get("/", async (req, res, next) => {
       message: "",
       products,
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put("/:_id", async (req, res, next) => {
+  try {
+    const { _id } = req.params;
+
+    const product = await editProduct(_id, req.body);
+    product?._id
+      ? res.json({
+          status: "success",
+          message: "Product edited successfully",
+        })
+      : res.json({
+          status: "error",
+          message: "Failed to edit product",
+        });
+  } catch (error) {
+    next(error);
+  }
+});
+router.delete("/:_id", async (req, res, next) => {
+  try {
+    const { _id } = req.params;
+
+    const product = await deleteProduct(_id);
+    product?._id
+      ? res.json({
+          status: "success",
+          message: "Product deleted successfully",
+        })
+      : res.json({
+          status: "error",
+          message: "Failed to delete product",
+        });
   } catch (error) {
     next(error);
   }

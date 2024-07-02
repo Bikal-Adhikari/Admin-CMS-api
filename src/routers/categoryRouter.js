@@ -81,7 +81,7 @@ router.delete("/:_id", async (req, res, next) => {
         })
       : res.json({
           status: "error",
-          message: "Failed to edit category",
+          message: "Failed to delete category",
         });
   } catch (error) {
     next(error);
