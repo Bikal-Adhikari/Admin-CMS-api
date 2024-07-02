@@ -47,8 +47,9 @@ export const newProductValidation = (req, res, next) => {
     name: STR_REQUIRED,
     sku: STR_REQUIRED,
     price: NUM_REQ,
-    quantity: NUM_REQ,
-    category: STR_REQUIRED,
+    parentCatId: STR_REQUIRED,
+    qty: NUM_REQ,
+
     salesPrice: PHONE,
     salesStart: DATE_REQ,
     salesEnd: DATE_REQ,

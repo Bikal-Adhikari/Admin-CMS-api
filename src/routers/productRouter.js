@@ -1,38 +1,58 @@
 import express from "express";
-import slugify from "slugify";
-import { newProductValidation } from "../middlewares/joiValidation.js";
-import { insertProduct } from "../models/product/ProductModel.js";
 const router = express.Router();
+import slugify from "slugify";
+
+import {
+  getAllProducts,
+  insertProduct,
+} from "../models/product/ProductModel.js";
+import { newProductValidation } from "../middlewares/joiValidation.js";
 
 router.post("/", newProductValidation, async (req, res, next) => {
   try {
-    const { name, ...rest } = req.body;
-    if (typeof name === "string" && name.length) {
-      const slug = slugify(name, {
-        lower: true,
+    const { name } = req.body;
+
+    const slug = slugify(name, {
+      lower: true,
+    });
+
+    const prod = await insertProduct({
+      ...req.body,
+      slug,
+    });
+
+    if (prod?._id) {
+      return res.json({
+        status: "success",
+        message: "New product has been added",
       });
-      const product = await insertProduct({
-        name,
-        ...rest,
-        slug,
-      });
-      if (product?._id) {
-        res.json({
-          status: "success",
-          message: "New Product created successfully",
-        });
-      }
     }
+
     res.json({
       status: "error",
-      message: "Failed to add categories",
+      message: "Unable to add product, try again later",
     });
   } catch (error) {
     if (error.message.includes("E11000 duplicate")) {
-      error.message = "This category already exists, try another one";
-      error.statusCode = 200;
+      error.message =
+        "This product slug or sku already exist, please change the name of the Product or sku and try agian.";
+      error.statusCode = 400;
     }
     next(error);
   }
 });
+
+router.get("/", async (req, res, next) => {
+  try {
+    const products = await getAllProducts();
+    res.json({
+      status: "success",
+      message: "",
+      products,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

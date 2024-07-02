@@ -5,34 +5,33 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: "inactive",
     },
+
     name: {
       type: String,
       required: true,
     },
-    sku: {
-      type: String,
-      unique: [
-        true,
-        "This sku has already been used for the another product, please use different sku",
-      ],
-      required: true,
-    },
+
     slug: {
       type: String,
       unique: true,
       index: 1,
       required: true,
     },
+
+    sku: {
+      type: String,
+      unique: [
+        true,
+        "This SKU has been already used for the another product, please use different SKU",
+      ],
+      required: true,
+    },
+    qty: {
+      type: Number,
+      required: true,
+    },
     price: {
       type: Number,
-      required: true,
-    },
-    quantity: {
-      type: Number,
-      required: true,
-    },
-    categoryId: {
-      type: mongoose.Types.ObjectId,
       required: true,
     },
     salesPrice: {
@@ -46,6 +45,10 @@ const productSchema = new mongoose.Schema(
     salesEnd: {
       type: Date,
       default: "",
+    },
+    parentCatId: {
+      type: mongoose.Types.ObjectId,
+      required: true,
     },
     description: {
       type: String,
@@ -66,4 +69,4 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("product", productSchema);
+export default mongoose.model("Product", productSchema); //productSchema

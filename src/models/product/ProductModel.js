@@ -1,16 +1,21 @@
-import productSchema from "./ProductSchema.js";
+import ProductSchema from "./ProductSchema.js";
 
 export const insertProduct = (productObj) => {
-  return productSchema(productObj).save();
+  return ProductSchema(productObj).save();
 };
 
-export const getProduct = (filter) => {
-  return productSchema.findOne(filter);
+export const getAllProducts = () => {
+  return ProductSchema.find();
 };
 
-export const deleteProduct = (filter) => {
-  return productSchema.findOneAndDelete(filter);
-};
-export const deleteManyProduct = (filter) => {
-  return productSchema.deleteMany(filter);
-};
+// export const getProduct = (filter) => {
+//   return ProductSchema.findOne(filter);
+// };
+
+// export const deleteProduct = (filter) => {
+//   return ProductSchema.findOneAndDelete(filter);
+// };
+
+// export const deleteManyProduct = (filter) => {
+//   return ProductSchema.deleteMany(filter);
+// };
