@@ -6,8 +6,6 @@ const router = express.Router();
 
 router.post("/", newProductValidation, async (req, res, next) => {
   try {
-    console.log("===============================================");
-    console.log(req.body);
     const { name, ...rest } = req.body;
     if (typeof name === "string" && name.length) {
       const slug = slugify(name, {
@@ -15,7 +13,7 @@ router.post("/", newProductValidation, async (req, res, next) => {
       });
       const product = await insertProduct({
         name,
-        rest,
+        ...rest,
         slug,
       });
       if (product?._id) {

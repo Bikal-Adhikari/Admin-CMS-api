@@ -5,7 +5,7 @@ const STR = Joi.string().max(100).allow("", null);
 const LONG_STR = Joi.string().max(5000).allow("", null);
 const LONG_STR_REQUIRED = Joi.string().max(5000).required();
 const PHONE = Joi.number().allow("", null);
-const PHONE_REQ = Joi.number().required();
+const NUM_REQ = Joi.number().required();
 const EMAIL = Joi.string()
   .email({
     minDomainSegments: 2,
@@ -16,7 +16,7 @@ const EMAIL_REQ = Joi.string()
     minDomainSegments: 2,
   })
   .required();
-const DATE_REQ = Joi.date().required();
+const DATE_REQ = Joi.date();
 // const ISTRUE = Joi.boolean().allow(null, "");
 
 const joiValidator = ({ req, res, next, schema }) => {
@@ -46,10 +46,10 @@ export const newProductValidation = (req, res, next) => {
   const schema = Joi.object({
     name: STR_REQUIRED,
     sku: STR_REQUIRED,
-    price: PHONE_REQ,
-    quantity: PHONE_REQ,
+    price: NUM_REQ,
+    quantity: NUM_REQ,
     category: STR_REQUIRED,
-    salesPrice: PHONE_REQ,
+    salesPrice: PHONE,
     salesStart: DATE_REQ,
     salesEnd: DATE_REQ,
     description: LONG_STR_REQUIRED,

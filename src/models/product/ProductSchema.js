@@ -36,15 +36,12 @@ const productSchema = new mongoose.Schema(
     },
     salesPrice: {
       type: Number,
-      required: true,
     },
     salesStart: {
       type: Date,
-      required: true,
     },
     salesEnd: {
       type: Date,
-      required: true,
     },
     description: {
       type: String,
