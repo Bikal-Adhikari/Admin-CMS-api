@@ -3,6 +3,7 @@ const router = express.Router();
 import slugify from "slugify";
 
 import {
+  deleteProduct,
   editProduct,
   getAllProducts,
   insertProduct,
