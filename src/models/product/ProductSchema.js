@@ -5,15 +5,16 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: "inactive",
     },
-
     name: {
       type: String,
       required: true,
     },
     sku: {
       type: String,
-      unique: true,
-      index: 1,
+      unique: [
+        true,
+        "This sku has already been used for the another product, please use different sku",
+      ],
       required: true,
     },
     slug: {
@@ -30,18 +31,21 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    category: {
-      type: String,
+    categoryId: {
+      type: mongoose.Types.ObjectId,
       required: true,
     },
     salesPrice: {
       type: Number,
+      default: null,
     },
     salesStart: {
       type: Date,
+      default: "",
     },
     salesEnd: {
       type: Date,
+      default: "",
     },
     description: {
       type: String,
@@ -49,7 +53,13 @@ const productSchema = new mongoose.Schema(
     },
     thumbnail: {
       type: String,
+      default: "",
     },
+    images: [
+      {
+        type: String,
+      },
+    ],
   },
   {
     timestamps: true,
