@@ -5,6 +5,7 @@ import slugify from "slugify";
 import {
   deleteProduct,
   editProduct,
+  getAProduct,
   getAllProducts,
   insertProduct,
 } from "../models/product/ProductModel.js";
@@ -51,6 +52,19 @@ router.get("/", async (req, res, next) => {
       status: "success",
       message: "",
       products,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/:_id", async (req, res, next) => {
+  try {
+    const { _id } = req.params;
+    const product = await getAProduct(_id);
+    res.json({
+      status: "success",
+      message: "",
+      product,
     });
   } catch (error) {
     next(error);
