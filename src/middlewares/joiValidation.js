@@ -43,6 +43,16 @@ export const newUserValidation = (req, res, next) => {
   });
   return joiValidator({ req, res, next, schema });
 };
+export const updateUserValidation = (req, res, next) => {
+  const schema = Joi.object({
+    fName: STR_REQUIRED,
+    lName: STR_REQUIRED,
+    gender: STR_REQUIRED,
+    phone: PHONE,
+    password: STR_REQUIRED,
+  });
+  return joiValidator({ req, res, next, schema });
+};
 export const newProductValidation = (req, res, next) => {
   const schema = Joi.object({
     name: STR_REQUIRED,

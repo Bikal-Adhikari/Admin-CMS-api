@@ -1,11 +1,15 @@
 import express from "express";
 import { comparePassword, hashPassword } from "../utils/bcrypt.js";
-import { getAUser, insertUser, updateUser } from "../models/user/UserModel.js";
-import { newUserValidation } from "../middlewares/validation.js";
+import {
+  getAUser,
+  insertUser,
+  updateUser,
+  updateUserById,
+} from "../models/user/UserModel.js";
+
 import {
   deleteManySession,
   deleteSession,
-  getSession,
   insertSession,
 } from "../models/session/SessionModel.js";
 const router = express.Router();
@@ -15,14 +19,13 @@ import {
   emailVerificationMail,
   sendOtpMail,
 } from "../services/email/nodemailer.js";
-import {
-  getTokens,
-  signAccessJWT,
-  signRefreshJWT,
-  verifyRefreshJWT,
-} from "../utils/jwt.js";
+import { getTokens, signAccessJWT, verifyRefreshJWT } from "../utils/jwt.js";
 import { auth } from "../middlewares/auth.js";
 import { otpGenerator } from "../utils/random.js";
+import {
+  newUserValidation,
+  updateUserValidation,
+} from "../middlewares/joiValidation.js";
 
 router.get("/", auth, (req, res, next) => {
   try {
@@ -280,6 +283,40 @@ router.patch("/password/reset", async (req, res, next) => {
       status: "error",
       message: "Invalid data, please try again later",
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Update User Details
+router.put("/:_id", updateUserValidation, async (req, res, next) => {
+  try {
+    const { _id } = req.params;
+    const { password, email, ...rest } = req.body;
+    const user = await getAUser({ email });
+    if (user?._id === _id) {
+      const confirmPass = comparePassword(password, user.password);
+      if (confirmPass) {
+        const updatedUser = await updateUserById(_id, req.body);
+        if (updatedUser?._id) {
+          return res.json({
+            status: "success",
+            message: "Login Successfull",
+            data: updatedUser,
+          });
+        }
+      } else {
+        return res.json({
+          status: "error",
+          message: "Invalid Password",
+        });
+      }
+    } else {
+      return res.json({
+        status: "error",
+        message: "Invalid User",
+      });
+    }
   } catch (error) {
     next(error);
   }
