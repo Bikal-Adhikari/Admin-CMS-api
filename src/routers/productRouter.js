@@ -61,6 +61,7 @@ router.get("/:_id", async (req, res, next) => {
   try {
     const { _id } = req.params;
     const product = await getAProduct(_id);
+
     res.json({
       status: "success",
       message: "",
