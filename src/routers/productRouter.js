@@ -20,6 +20,17 @@ router.post(
     try {
       const { name } = req.body;
 
+      // generate thumbnail path
+      // generate images paths
+
+      if (req.files?.length > 0) {
+        const newImgs = req.files.map((item) => {
+          return item.path.replace("public", "");
+        });
+        req.body.images = newImgs;
+        req.body.thumbnail = newImgs[0];
+      }
+
       const slug = slugify(name, {
         lower: true,
       });
