@@ -14,6 +14,9 @@ import morgan from "morgan";
 app.use(cors());
 app.use(express.json());
 app.use(morgan("tiny"));
+import filePath from "path";
+const __dirname = filePath.resolve();
+app.use(express.static(filePath.join(__dirname, "public")));
 
 // apis
 import routers from "./src/routers/routers.js";

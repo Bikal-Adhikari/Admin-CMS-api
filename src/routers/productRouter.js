@@ -10,40 +10,46 @@ import {
   insertProduct,
 } from "../models/product/ProductModel.js";
 import { newProductValidation } from "../middlewares/joiValidation.js";
+import multerUpload from "../utils/uploadMulter.js";
 
-router.post("/", newProductValidation, async (req, res, next) => {
-  try {
-    const { name } = req.body;
+router.post(
+  "/",
+  multerUpload.array("images", 5),
+  newProductValidation,
+  async (req, res, next) => {
+    try {
+      const { name } = req.body;
 
-    const slug = slugify(name, {
-      lower: true,
-    });
-
-    const prod = await insertProduct({
-      ...req.body,
-      slug,
-    });
-
-    if (prod?._id) {
-      return res.json({
-        status: "success",
-        message: "New product has been added",
+      const slug = slugify(name, {
+        lower: true,
       });
-    }
 
-    res.json({
-      status: "error",
-      message: "Unable to add product, try again later",
-    });
-  } catch (error) {
-    if (error.message.includes("E11000 duplicate")) {
-      error.message =
-        "This product slug or sku already exist, please change the name of the Product or sku and try agian.";
-      error.statusCode = 400;
+      const prod = await insertProduct({
+        ...req.body,
+        slug,
+      });
+
+      if (prod?._id) {
+        return res.json({
+          status: "success",
+          message: "New product has been added",
+        });
+      }
+
+      res.json({
+        status: "error",
+        message: "Unable to add product, try again later",
+      });
+    } catch (error) {
+      if (error.message.includes("E11000 duplicate")) {
+        error.message =
+          "This product slug or sku already exist, please change the name of the Product or sku and try agian.";
+        error.statusCode = 400;
+      }
+      next(error);
     }
-    next(error);
   }
-});
+);
 
 router.get("/", async (req, res, next) => {
   try {
