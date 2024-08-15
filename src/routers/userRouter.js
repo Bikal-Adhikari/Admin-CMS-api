@@ -5,7 +5,7 @@ import {
   insertUser,
   updateUser,
   updateUserById,
-} from "../models/user/UserModel.js";
+} from "../models/user/userModel.js";
 
 import {
   deleteManySession,
