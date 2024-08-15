@@ -77,7 +77,7 @@ router.post("/", newUserValidation, async (req, res, next) => {
         return res.json({
           status: "success",
           message:
-            "We have send you an email with insturction to verify your  account. Pelase chekc email/junk to verify your account",
+            "We have send you an email with insturction to verify your  account. Please check email/junk to verify your account",
         });
       }
     }
