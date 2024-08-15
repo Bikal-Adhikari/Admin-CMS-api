@@ -1,5 +1,5 @@
 import { getSession } from "../models/session/SessionModel.js";
-import { getAUser } from "../models/user/UserModel.js";
+import { getAUser } from "../models/user/userModel.js";
 import { verifyAccessJWT } from "../utils/jwt.js";
 
 export const auth = async (req, res, next) => {
